@@ -44,6 +44,26 @@ internal class ProductControllerTests {
             productService.addProduct("first-product-name")
         }
     }
+    @Test
+    fun `should update quantity of a product`() {
+        every { productService.updateProduct(1,"10") } returns Product(
+            id = 1L,
+            name = "first-product-name",
+            quantity = 10
+        )
+        mockMvc.post("/products/1") {
+            contentType = MediaType.TEXT_PLAIN
+            content = "10"
+        }.andExpect {
+            status { isOk() }
+            content { string(containsString("10")) }
+        }
+
+        verify(exactly = 1) {
+            productService.updateProduct(1,"10")
+        }
+
+    }
 
     @Test
     fun `should retrieve all products when getting products`() {
