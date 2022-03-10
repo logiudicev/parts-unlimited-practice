@@ -49,4 +49,17 @@ describe("inventory", () => {
       expect(await screen.findByText("shiny new product")).toBeInTheDocument();
     });
   });
+
+  describe("when I add quantity to an existing product", () => {
+    it("should display the quantity after entering a number and clicking add quantity button", () => {
+      mockGetProducts.mockResolvedValue([{name: "a product", quantity: 0}]);
+
+      render(<App/>);
+
+      userEvent.type(screen.getByLabelText('input quantity'), '12');
+      userEvent.click(screen.getByRole('button', { name: 'add quantity'}));
+
+      expect(screen.getByText("12")).toBeVisible();
+    })
+  })
 });

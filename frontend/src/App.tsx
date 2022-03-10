@@ -1,11 +1,12 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {createProduct, getProducts} from "./productsApiClient";
-import {Box, Container} from "@mui/material";
+import {Box, Container, TextField} from "@mui/material";
 import {Product} from "./product";
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
+    const [userInput, setUserInput] = useState<number>(0)
 
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
@@ -29,7 +30,13 @@ const App = () => {
                 <Box>
                     <h2>Product</h2>
                     {products.map((product, index) => (
-                        <div key={index}>{product.name}</div>
+                        <div key={index}>
+                            <>
+                                <Box sx={{height: '37px', lineHeight: "2.3"}}>{product.name}</Box>
+                            </>
+
+
+                        </div>
                     ))}
                     <form onSubmit={submitForm}>
                         <br/>
@@ -43,8 +50,32 @@ const App = () => {
                 <Box>
                     <h2>Quantity</h2>
                     {products.map((product, index) => (
-                        <div key={index}>{product.quantity}</div>
+                        <div key={index}>
+                            <>
+                                <Box sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}>
+                                    {product.quantity}
+                                </Box>
+                            </>
+                        </div>
                     ))}
+                </Box>
+                <Box sx={{marginLeft: '100px', height: '50px'}}>
+                    <h2>Enter Quantity</h2>
+                    {products.map((product, index) => (
+                        <div key={index}>
+                            <>
+                                <TextField
+                                    size={"small"} sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
+                                    label="input quantity"
+                                    onClick={() => setUserInput(() => 0)}
+                                    onChange={(event) => setUserInput(parseInt(event.target.value)
+                                    )}
+                                    value={userInput}
+                                />
+                            </>
+                        </div>
+                    ))}
+
                 </Box>
             </Box>
         </Container>
