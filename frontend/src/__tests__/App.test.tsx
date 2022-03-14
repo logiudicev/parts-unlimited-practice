@@ -17,7 +17,7 @@ const addProduct = (product: string) => {
 describe("inventory", () => {
   describe("when I view the inventory", () => {
     it("should display the products", async () => {
-      mockGetProducts.mockResolvedValue([{name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
 
       render(<App/>);
 
@@ -27,7 +27,7 @@ describe("inventory", () => {
     });
 
     it("should display the products' quantities", async () => {
-      mockGetProducts.mockResolvedValue([{name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
 
       render(<App/>);
 
@@ -38,9 +38,9 @@ describe("inventory", () => {
 
   describe("when I add a new product", () => {
     it("should display the new product", async () => {
-      mockCreateProduct.mockResolvedValueOnce({name: "shiny new product", quantity: 0});
+      mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", quantity: 0});
       mockGetProducts.mockResolvedValueOnce([]);
-      mockGetProducts.mockResolvedValueOnce([{name: "shiny new product", quantity: 0}]);
+      mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", quantity: 0}]);
 
       render(<App/>);
       addProduct("shiny new product");
@@ -52,7 +52,7 @@ describe("inventory", () => {
 
   describe("when I add quantity to an existing product", () => {
     it("should display the quantity after entering a number and clicking add quantity button", async () => {
-      mockGetProducts.mockResolvedValue([{name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
 
       render(<App/>);
 
@@ -60,7 +60,20 @@ describe("inventory", () => {
       userEvent.type(screen.getByLabelText('input quantity'), '12');
       userEvent.click(screen.getByRole('button', { name: 'add quantity'}));
 
-      waitFor(() => expect(screen.getByText('12')).toBeVisible());
+      waitFor(() => expect(screen.getByText('a product 12')).toBeVisible());
+    })
+  })
+  describe("when I place an order for a product", () => {
+    it('it should decrease the quantity by the order total', async () => {
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 90}]);
+
+      render(<App/>);
+
+      expect(await screen.findByLabelText('input order fulfillment')).toBeInTheDocument();
+      userEvent.type(screen.getByLabelText('input order fulfillment'), '35');
+      userEvent.click(screen.getByRole('button', { name: 'order fulfillment'}));
+
+      waitFor(() => expect(screen.getByText('a product 55')).toBeVisible());
     })
   })
 });

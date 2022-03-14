@@ -7,23 +7,44 @@ const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
     const [userInput, setUserInput] = useState<string>("");
-    const [setInput] = useState<string[]>(['']);
-    const [input] = useState<string[]>(setInput);
+
+    const [setInputQuantity] = useState<string[]>(['']);
+    const [inputQuantity] = useState<string[]>(setInputQuantity);
+
+    const [setInputOrder] = useState<string[]>(['']);
+    const [inputOrder] = useState<string[]>(setInputOrder);
+
     const [refreshCount, setRefreshCount] = useState<number>(0)
 
 
-
-
-    const handleChange = (event: string, index: number) => {
+    const handleChangeQuantity = (event: string, index: number) => {
         setUserInput(event);
-        setInput[index] = event;
+        setInputQuantity[index] = event;
     }
 
-    const handleOnClick = (id: number, quantity: string | undefined) => {
+    const handleAddQuantityOnClick = (id: number, index: number) => {
+        const quantity = inputQuantity.at(index);
         updateProductQuantity(id, quantity);
-        setRefreshCount(prevState => prevState + 1)
+        //clear inputQuantity
+        setInputQuantity[index] = ''
 
+        //Refresh State of Products
+        setRefreshCount(prevState => prevState + 1)
     }
+
+    const handleChangeOrder = (event: string, index: number) => {
+        setUserInput(event);
+        setInputOrder[index] = event
+    }
+
+    const handleOrderFulfillOnClick = (id: number, index: number, currentQuantity: number) => {
+        const orderTotal: string | undefined= inputOrder.at(index)
+        if(orderTotal) {
+            const quantity = currentQuantity - parseInt(orderTotal)
+            updateProductQuantity(id, quantity.toString())
+            setRefreshCount(prevState => prevState + 1)
+        }
+    };
 
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
@@ -39,9 +60,11 @@ const App = () => {
     useEffect(() => {
         getProducts().then(setProducts);
         for (let i = 0; i < products.length; i++) {
-            setInput.push(''[i]);
+            setInputQuantity.push(''[i]);
         }
     }, [refreshCount]);
+
+
 
 
     return (
@@ -73,32 +96,50 @@ const App = () => {
                     {products.map((product, index) => (
                         <div key={index}>
                             <>
-                                <Box sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}>
+                                <Box sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
+                                     aria-label={product.name + " " + product.quantity}>
                                     {product.quantity}
                                 </Box>
                             </>
                         </div>
                     ))}
                 </Box>
-                <Box sx={{marginLeft: '100px', height: '50px'}}>
+                <Box sx={{marginLeft: '60px', height: '50px'}}>
                     <h2>Enter Quantity</h2>
                     {products.map((product, index) => <div key={index}>
                         <>
                             <TextField
-                                size={"small"} sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
+                                size={"small"} sx={{height: '37px', textAlign: "left", lineHeight: "2.3"}}
                                 label="input quantity"
                                 onChange={(event) =>
-                                    handleChange(event.target.value, index)
+                                    handleChangeQuantity(event.target.value, index)
                                 }
-                                value={input.at(index)}
+                                value={inputQuantity.at(index)}
                             />
 
-                            <Button variant='outlined' color='success' type='button' onClick={() => handleOnClick(product.id, input.at(index))}>
+                            <Button variant='outlined' color='success' type='button'
+                                    onClick={() => handleAddQuantityOnClick(product.id, index)}>
                                 add quantity
                             </Button>
                         </>
                     </div>)}
+                </Box>
 
+                <Box sx={{marginLeft: '50px', height: '50px'}}>
+                    <h2>Enter Order</h2>
+                    {products.map((product, index) => <div key={index}>
+                        <>
+                        <TextField
+                            size={"small"} sx={{height: '37px', textAlign: "left", lineHeight: "2.3"}}
+                            label='input order'
+                            onChange={(event) => handleChangeOrder(event.target.value, index)}
+                        />
+
+                        <Button variant='outlined' color='success' type='button' onClick={() => handleOrderFulfillOnClick(product.id, index, product.quantity)}>
+                            order
+                        </Button>
+                        </>
+                    </div>)}
                 </Box>
             </Box>
         </Container>
