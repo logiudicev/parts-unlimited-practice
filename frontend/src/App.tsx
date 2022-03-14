@@ -1,12 +1,29 @@
-import React, {FormEvent, useEffect, useState} from "react";
-import {createProduct, getProducts} from "./productsApiClient";
-import {Box, Container, TextField} from "@mui/material";
+import React, {Dispatch, FormEvent, useEffect, useState} from "react";
+import {createProduct, getProducts, updateProductQuantity} from "./productsApiClient";
+import {Box, Button, Container, TextField} from "@mui/material";
 import {Product} from "./product";
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
-    const [userInput, setUserInput] = useState<number>(0)
+    const [userInput, setUserInput] = useState<string>("");
+    const [setInput] = useState<string[]>(['']);
+    const [input] = useState<string[]>(setInput);
+    const [refreshCount, setRefreshCount] = useState<number>(0)
+
+
+
+
+    const handleChange = (event: string, index: number) => {
+        setUserInput(event);
+        setInput[index] = event;
+    }
+
+    const handleOnClick = (id: number, quantity: string | undefined) => {
+        updateProductQuantity(id, quantity);
+        setRefreshCount(prevState => prevState + 1)
+
+    }
 
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
@@ -21,7 +38,11 @@ const App = () => {
 
     useEffect(() => {
         getProducts().then(setProducts);
-    }, []);
+        for (let i = 0; i < products.length; i++) {
+            setInput.push(''[i]);
+        }
+    }, [refreshCount]);
+
 
     return (
         <Container sx={{mx: 1, my: 1}}>
@@ -61,20 +82,22 @@ const App = () => {
                 </Box>
                 <Box sx={{marginLeft: '100px', height: '50px'}}>
                     <h2>Enter Quantity</h2>
-                    {products.map((product, index) => (
-                        <div key={index}>
-                            <>
-                                <TextField
-                                    size={"small"} sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
-                                    label="input quantity"
-                                    onClick={() => setUserInput(() => 0)}
-                                    onChange={(event) => setUserInput(parseInt(event.target.value)
-                                    )}
-                                    value={userInput}
-                                />
-                            </>
-                        </div>
-                    ))}
+                    {products.map((product, index) => <div key={index}>
+                        <>
+                            <TextField
+                                size={"small"} sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
+                                label="input quantity"
+                                onChange={(event) =>
+                                    handleChange(event.target.value, index)
+                                }
+                                value={input.at(index)}
+                            />
+
+                            <Button variant='outlined' color='success' type='button' onClick={() => handleOnClick(product.id, input.at(index))}>
+                                add quantity
+                            </Button>
+                        </>
+                    </div>)}
 
                 </Box>
             </Box>

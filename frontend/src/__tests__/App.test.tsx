@@ -1,5 +1,5 @@
 import React from "react";
-import {render, screen} from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import App from "../App";
 import userEvent from "@testing-library/user-event";
 import {createProduct, getProducts} from "../productsApiClient";
@@ -51,15 +51,16 @@ describe("inventory", () => {
   });
 
   describe("when I add quantity to an existing product", () => {
-    it("should display the quantity after entering a number and clicking add quantity button", () => {
+    it("should display the quantity after entering a number and clicking add quantity button", async () => {
       mockGetProducts.mockResolvedValue([{name: "a product", quantity: 0}]);
 
       render(<App/>);
 
+      expect(await screen.findByLabelText('input quantity')).toBeInTheDocument();
       userEvent.type(screen.getByLabelText('input quantity'), '12');
       userEvent.click(screen.getByRole('button', { name: 'add quantity'}));
 
-      expect(screen.getByText("12")).toBeVisible();
+      waitFor(() => expect(screen.getByText('12')).toBeVisible());
     })
   })
 });
