@@ -64,16 +64,18 @@ describe("inventory", () => {
     })
   })
   describe("when I place an order for a product", () => {
-    it('it should decrease the quantity by the order total', async () => {
+    it('should display order information and decrease the quantity by the order total', async () => {
       mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 90}]);
 
       render(<App/>);
 
-      expect(await screen.findByLabelText('input order fulfillment')).toBeInTheDocument();
-      userEvent.type(screen.getByLabelText('input order fulfillment'), '35');
-      userEvent.click(screen.getByRole('button', { name: 'order fulfillment'}));
+      expect(await screen.findByLabelText('input order')).toBeInTheDocument();
+      userEvent.type(screen.getByLabelText('input order'), '35');
+      userEvent.click(screen.getByRole('button', { name: 'order'}));
 
       waitFor(() => expect(screen.getByText('a product 55')).toBeVisible());
+
+      waitFor(() => expect(screen.getByRole("alert", { name: 'You will receive "a product" X 35.'})).toBeVisible());
     })
   })
 });

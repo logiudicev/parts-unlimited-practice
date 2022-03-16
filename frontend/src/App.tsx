@@ -1,7 +1,8 @@
 import React, {Dispatch, FormEvent, useEffect, useState} from "react";
 import {createProduct, getProducts, updateProductQuantity} from "./productsApiClient";
-import {Box, Button, Container, TextField} from "@mui/material";
+import {Box, Button, Container, IconButton, Snackbar, TextField} from "@mui/material";
 import {Product} from "./product";
+
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -16,6 +17,10 @@ const App = () => {
 
     const [refreshCount, setRefreshCount] = useState<number>(0)
 
+    const [orderHelperText, setOrderHelperText] = useState<string>("")
+    const [orderHelperTextContinued, setOrderHelperTextContinued] = useState<string>("")
+
+    const [showHelperText, setShowHelperText] = useState<boolean>(false)
 
     const handleChangeQuantity = (event: string, index: number) => {
         setUserInput(event);
@@ -26,7 +31,7 @@ const App = () => {
         const quantity = inputQuantity.at(index);
         updateProductQuantity(id, quantity);
         //clear inputQuantity
-        setInputQuantity[index] = ''
+        setInputQuantity[index] = '0'
 
         //Refresh State of Products
         setRefreshCount(prevState => prevState + 1)
@@ -37,14 +42,41 @@ const App = () => {
         setInputOrder[index] = event
     }
 
-    const handleOrderFulfillOnClick = (id: number, index: number, currentQuantity: number) => {
-        const orderTotal: string | undefined= inputOrder.at(index)
-        if(orderTotal) {
-            const quantity = currentQuantity - parseInt(orderTotal)
-            updateProductQuantity(id, quantity.toString())
+    const handleOrderFulfillOnClick = (product: Product, index: number) => {
+        const orderTotal: string | undefined = inputOrder.at(index)
+        if (orderTotal) {
+            helperText(product, orderTotal)
+            updateProductQuantity(product.id, helperText(product, orderTotal))
             setRefreshCount(prevState => prevState + 1)
         }
+        setInputOrder[index] = "0"
+        setRefreshCount(prevState => prevState + 1)
     };
+
+    const helperText = (product: Product, orderTotal: string | undefined): string | undefined => {
+
+        let inStockOrderTotal = 0;
+        let outOfStockOrderTotal = 0;
+        let newQuantity = 0
+        if (orderTotal) {
+            if (product.quantity >= parseInt(orderTotal)) {
+                inStockOrderTotal = parseInt(orderTotal);
+                setOrderHelperText("You will receive " + '"' + product.name + '"' + " X " + inStockOrderTotal + ".")
+                setOrderHelperTextContinued("")
+            } else {
+                inStockOrderTotal = product.quantity;
+                outOfStockOrderTotal = parseInt(orderTotal) - product.quantity;
+
+                setOrderHelperText("You will receive " + '"' + product.name + '"' + " X " + inStockOrderTotal + ".")
+                setOrderHelperTextContinued(" Note that your order was NOT completely fulfilled. Your delivery will be short " + outOfStockOrderTotal + " items.")
+            }
+        }
+        setShowHelperText(true);
+        newQuantity = product.quantity - inStockOrderTotal
+        return (
+            newQuantity.toString()
+        )
+    }
 
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
@@ -64,8 +96,25 @@ const App = () => {
         }
     }, [refreshCount]);
 
+    const handleClose = () => {
+        setShowHelperText(false);
+    };
 
+    const action = (
+        <React.Fragment>
+            <Button color="secondary" size="small" >
+                Got it
+            </Button>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
 
+            </IconButton>
+        </React.Fragment>
+    );
 
     return (
         <Container sx={{mx: 1, my: 1}}>
@@ -129,15 +178,23 @@ const App = () => {
                     <h2>Enter Order</h2>
                     {products.map((product, index) => <div key={index}>
                         <>
-                        <TextField
-                            size={"small"} sx={{height: '37px', textAlign: "left", lineHeight: "2.3"}}
-                            label='input order'
-                            onChange={(event) => handleChangeOrder(event.target.value, index)}
-                        />
+                            <TextField
+                                size={"small"} sx={{height: '37px', textAlign: "left", lineHeight: "2.3"}}
+                                label='input order'
+                                onChange={(event) => handleChangeOrder(event.target.value, index)}
+                                value={inputOrder.at(index)}
+                            />
 
-                        <Button variant='outlined' color='success' type='button' onClick={() => handleOrderFulfillOnClick(product.id, index, product.quantity)}>
-                            order
-                        </Button>
+                            <Button variant='outlined' color='success' type='button'
+                                    onClick={() => handleOrderFulfillOnClick(product, index)}>
+                                order
+                            </Button>
+                            <Snackbar message={orderHelperText + orderHelperTextContinued}
+                                      open={showHelperText}
+                                      autoHideDuration={6000}
+                                      onClose={handleClose}
+                                      action={action}
+                            />
                         </>
                     </div>)}
                 </Box>
