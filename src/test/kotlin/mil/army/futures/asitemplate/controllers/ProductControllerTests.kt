@@ -29,7 +29,8 @@ internal class ProductControllerTests {
         every { productService.addProduct("first-product-name") } returns Product(
             id = 1L,
             name = "first-product-name",
-            quantity = 0
+            quantity = 0,
+            model = "New Model"
         )
 
         mockMvc.post("/products") {
@@ -49,7 +50,8 @@ internal class ProductControllerTests {
         every { productService.updateProduct(1,"10") } returns Product(
             id = 1L,
             name = "first-product-name",
-            quantity = 10
+            quantity = 10,
+            model = "New Model"
         )
         mockMvc.post("/products/1") {
             contentType = MediaType.TEXT_PLAIN
@@ -68,8 +70,8 @@ internal class ProductControllerTests {
     @Test
     fun `should retrieve all products when getting products`() {
         every { productService.getProducts() } returns listOf(
-            Product(id = 1L, name = "first-product-name", quantity = 0),
-            Product(id = 2L, name = "second-product-name", quantity = 0)
+            Product(id = 1L, name = "first-product-name", quantity = 0, model = "New Model"),
+            Product(id = 2L, name = "second-product-name", quantity = 0, model = "New Model")
         )
 
         mockMvc.get("/products").andExpect {

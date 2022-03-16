@@ -1,12 +1,13 @@
 import React, {Dispatch, FormEvent, useEffect, useState} from "react";
 import {createProduct, getProducts, updateProductQuantity} from "./productsApiClient";
-import {Box, Button, Container, IconButton, Snackbar, TextField} from "@mui/material";
+import {Box, Button, Container, Grid, IconButton, Snackbar, Stack, TextField} from "@mui/material";
 import {Product} from "./product";
 
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
+    const [productModel, setProductModel] = useState<string>("");
     const [userInput, setUserInput] = useState<string>("");
 
     const [setInputQuantity] = useState<string[]>(['']);
@@ -81,10 +82,13 @@ const App = () => {
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
     };
+    const setProductModelFromInput = (event: FormEvent<HTMLInputElement>) => {
+        setProductModel(event.currentTarget.value);
+    };
 
     const submitForm = (event: FormEvent) => {
         event.preventDefault();
-        createProduct(productName).then(() => {
+        createProduct(productName, productModel).then(() => {
             getProducts().then(setProducts);
         });
     };
@@ -133,10 +137,15 @@ const App = () => {
                     ))}
                     <form onSubmit={submitForm}>
                         <br/>
-                        <label>
-                            Product to add
-                            <input name="product" type="text" onChange={setProductNameFromInput}/>
-                        </label>
+                        <Stack marginRight='80px'>
+                           <Grid item>Product to add</Grid>
+                            <input aria-label="product-to-add" name="product" type="text" onChange={setProductNameFromInput}/>
+                        </Stack>
+                        <br/>
+                        <Stack marginRight='80px'>
+                           <Grid item>Model</Grid>
+                            <input aria-label="model-to-add" name="model" type="text" onChange={setProductModelFromInput}/>
+                        </Stack>
                         <button type="submit">Submit</button>
                     </form>
                 </Box>

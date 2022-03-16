@@ -9,15 +9,17 @@ jest.mock("../productsApiClient");
 const mockGetProducts = getProducts as jest.MockedFunction<typeof getProducts>;
 const mockCreateProduct = createProduct as jest.MockedFunction<typeof createProduct>;
 
-const addProduct = (product: string) => {
-  userEvent.type(screen.getByLabelText("Product to add"), product);
+const addProduct = (product: string, model: string) => {
+  userEvent.type(screen.getByLabelText("product-to-add"), product);
+  userEvent.type(screen.getByLabelText("model-to-add"), model);
+
   userEvent.click(screen.getByRole("button", {name: /submit/i}));
 }
 
 describe("inventory", () => {
   describe("when I view the inventory", () => {
     it("should display the products", async () => {
-      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0, model: "New Model"}]);
 
       render(<App/>);
 
@@ -27,7 +29,7 @@ describe("inventory", () => {
     });
 
     it("should display the products' quantities", async () => {
-      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0, model: "New Model"}]);
 
       render(<App/>);
 
@@ -38,21 +40,23 @@ describe("inventory", () => {
 
   describe("when I add a new product", () => {
     it("should display the new product", async () => {
-      mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", quantity: 0});
+      mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", quantity: 0, model: "New Model"});
       mockGetProducts.mockResolvedValueOnce([]);
-      mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", quantity: 0}]);
+      mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", quantity: 0, model: "New Model"}]);
 
       render(<App/>);
-      addProduct("shiny new product");
+      addProduct("shiny new product", "New Model");
 
-      expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product");
+      expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product", "New Model");
       expect(await screen.findByText("shiny new product")).toBeInTheDocument();
+      expect(await screen.findByText("New Model")).toBeInTheDocument();
+
     });
   });
 
   describe("when I add quantity to an existing product", () => {
     it("should display the quantity after entering a number and clicking add quantity button", async () => {
-      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0, model: "New Model"}]);
 
       render(<App/>);
 
@@ -65,7 +69,7 @@ describe("inventory", () => {
   })
   describe("when I place an order for a product", () => {
     it('should display order information and decrease the quantity by the order total', async () => {
-      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 90}]);
+      mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 90, model: "New Model"}]);
 
       render(<App/>);
 

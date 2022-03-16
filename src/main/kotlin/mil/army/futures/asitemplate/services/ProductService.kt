@@ -9,7 +9,7 @@ import java.lang.Integer.parseInt
 @Service
 class ProductService(private val productRepository: ProductRepository) {
     fun addProduct(product: String): Product {
-        return productRepository.save(Product(name = product, quantity = 0))
+        return productRepository.save(Product(name = product, quantity = 0, model = "New Model"))
     }
 
     fun getProducts(): List<Product> {

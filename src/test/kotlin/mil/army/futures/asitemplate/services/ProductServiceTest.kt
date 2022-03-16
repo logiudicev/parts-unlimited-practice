@@ -22,7 +22,7 @@ internal class ProductServiceTest {
 
     @Test
     fun `should retrieve all products`() {
-        val expectedProducts = listOf(Product(1L, "first-product", 0), Product(2L, "second-product", 0))
+        val expectedProducts = listOf(Product(1L, "first-product", 0, "New Model"), Product(2L, "second-product", 0, model = "New Model"))
         every { productRepository.findAll() } returns expectedProducts
 
         val actualProducts: List<Product> = productService.getProducts()
@@ -34,7 +34,7 @@ internal class ProductServiceTest {
     fun `should create a new product`() {
         every { productRepository.save(any()) } answers { firstArg() }
         val productName = "first-product"
-        val productToSave = Product(name = productName, quantity = 0)
+        val productToSave = Product(name = productName, quantity = 0, model = "New Model")
 
         productService.addProduct(productName)
 
@@ -43,12 +43,12 @@ internal class ProductServiceTest {
 
     @Test
     fun `should update quantity`() {
-        every { productRepository.findByIdOrNull(1) } returns Product(1, "my-first-product", 0)
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "my-first-product", 0,"New Model")
         every { productRepository.save(any()) } answers { firstArg() }
 
         val id = 1L
         val productName = "my-first-product"
-        val productToSave = Product(id = 1L, name = productName, quantity = 10)
+        val productToSave = Product(id = 1L, name = productName, quantity = 10, model = "New Model")
 
         productService.updateProduct(id, "10")
 
