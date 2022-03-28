@@ -15,5 +15,5 @@ data class Product(
 
     val quantity: Int,
 
-    val model: String,
+    val model: String? = null,
 )

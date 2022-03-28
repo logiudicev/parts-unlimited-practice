@@ -26,14 +26,14 @@ internal class ProductControllerTests {
 
     @Test
     fun `should save a new product when a new product is created`() {
-        every { productService.addProduct("first-product-name") } returns Product(
+        every { productService.addProduct("first-product-name", "New-Model") } returns Product(
             id = 1L,
             name = "first-product-name",
             quantity = 0,
             model = "New Model"
         )
 
-        mockMvc.post("/products") {
+        mockMvc.post("/products/New-Model") {
             contentType = MediaType.TEXT_PLAIN
             content = "first-product-name"
         }.andExpect {
@@ -42,18 +42,18 @@ internal class ProductControllerTests {
         }
 
         verify(exactly = 1) {
-            productService.addProduct("first-product-name")
+            productService.addProduct("first-product-name", "New-Model")
         }
     }
     @Test
     fun `should update quantity of a product`() {
-        every { productService.updateProduct(1,"10") } returns Product(
+        every { productService.updateQuantity(1,"10") } returns Product(
             id = 1L,
             name = "first-product-name",
             quantity = 10,
             model = "New Model"
         )
-        mockMvc.post("/products/1") {
+        mockMvc.post("/products/quantity/1") {
             contentType = MediaType.TEXT_PLAIN
             content = "10"
         }.andExpect {
@@ -62,7 +62,29 @@ internal class ProductControllerTests {
         }
 
         verify(exactly = 1) {
-            productService.updateProduct(1,"10")
+            productService.updateQuantity(1,"10")
+        }
+
+    }
+
+    @Test
+    fun `should update order of a product`() {
+        every { productService.updateOrder(1,"10") } returns Product(
+            id = 1L,
+            name = "first-product-name",
+            quantity = 10,
+            model = "New Model"
+        )
+        mockMvc.post("/products/order/1") {
+            contentType = MediaType.TEXT_PLAIN
+            content = "10"
+        }.andExpect {
+            status { isOk() }
+            content { string(containsString("10")) }
+        }
+
+        verify(exactly = 1) {
+            productService.updateOrder(1,"10")
         }
 
     }

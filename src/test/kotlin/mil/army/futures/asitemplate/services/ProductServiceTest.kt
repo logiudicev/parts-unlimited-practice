@@ -34,9 +34,10 @@ internal class ProductServiceTest {
     fun `should create a new product`() {
         every { productRepository.save(any()) } answers { firstArg() }
         val productName = "first-product"
+        val productModel = "New Model"
         val productToSave = Product(name = productName, quantity = 0, model = "New Model")
 
-        productService.addProduct(productName)
+        productService.addProduct(productName, productModel)
 
         verify { productRepository.save(productToSave) }
     }
@@ -50,7 +51,7 @@ internal class ProductServiceTest {
         val productName = "my-first-product"
         val productToSave = Product(id = 1L, name = productName, quantity = 10, model = "New Model")
 
-        productService.updateProduct(id, "10")
+        productService.updateQuantity(id, "10")
 
         verify { productRepository.save(productToSave) }
     }

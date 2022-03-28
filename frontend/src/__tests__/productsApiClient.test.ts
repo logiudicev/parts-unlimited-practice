@@ -1,5 +1,5 @@
 import nock from 'nock';
-import {createProduct, getProducts, updateProductQuantity} from "../productsApiClient";
+import {createProduct, getProducts, updateProductOrder, updateProductQuantity} from "../productsApiClient";
 
 describe('productsApiClient', () => {
     describe('getProducts', () => {
@@ -19,7 +19,7 @@ describe('productsApiClient', () => {
                 reqheaders: {
                     'Content-Type': 'text/plain'
                 }
-            }).post('/products', 'my-new-product', 'New Model')
+            }).post('/products', 'my-new-product')
                 .reply(200, {name: "my-new-product", quantity: 0, model: "New Model"});
 
             const response = await createProduct("my-new-product", "New Model");
@@ -37,13 +37,30 @@ describe('productsApiClient', () => {
                 reqheaders: {
                     'Content-Type': 'text/plain'
                 }
-            }).post('/products/1')
+            }).post('/products/quantity/1')
                 .reply(200, {id: 1, name: "my-new-product", quantity: 10});
 
-            const response = await updateProductQuantity(1, "10");
+            const response = await updateProductQuantity(1, 10);
             expect(scope.isDone()).toEqual(true);
             expect(response.name).toEqual("my-new-product");
             expect(response.quantity).toEqual(10);
         })
     })
+
+    describe('updateProductOrder', () => {
+        it('should make a POST request to update a product order', async () => {
+            const scope = nock('http://localhost', {
+                reqheaders: {
+                    'Content-Type': 'text/plain'
+                }
+            }).post('/products/order/1')
+                .reply(200, {id: 1, name: "my-new-product", quantity: 10});
+
+            const response = await updateProductOrder(1, 10);
+            expect(scope.isDone()).toEqual(true);
+            expect(response.name).toEqual("my-new-product");
+            expect(response.quantity).toEqual(10);
+        })
+    })
+
 });

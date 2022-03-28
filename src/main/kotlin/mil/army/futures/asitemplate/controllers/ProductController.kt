@@ -12,14 +12,19 @@ class ProductController(private val productService: ProductService) {
         return productService.getProducts()
     }
 
-    @PostMapping("/products")
-    fun addProduct(@RequestBody product: String): Product {
-        return productService.addProduct(product)
+    @PostMapping("/products/{model}")
+    fun addProduct(@RequestBody product: String, @PathVariable model: String?): Product {
+        return productService.addProduct(product, model)
     }
 
-    @PostMapping("/products/{id}")
+    @PostMapping("/products/quantity/{id}")
     fun updateProductQuantity(@PathVariable id: Long, @RequestBody quantity: String): Product {
-        return productService.updateProduct(id, quantity)
+        return productService.updateQuantity(id, quantity)
+    }
+
+    @PostMapping("/products/order/{id}")
+    fun updateProductOrder(@PathVariable id: Long, @RequestBody order: String): Product {
+        return productService.updateOrder(id, order)
     }
 
     @GetMapping("/hi")
