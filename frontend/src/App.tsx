@@ -4,7 +4,7 @@ import {
     Box,
     Button,
     Grid,
-    IconButton,
+    IconButton, InputBase,
     Snackbar,
     Stack,
     Table, TableCell,
@@ -18,23 +18,23 @@ const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
     const [productModel, setProductModel] = useState<string>("New Model");
-
     const [inputQuantity, setInputQuantity] = useState<number>(0);
     const [inputOrder, setInputOrder] = useState<number>(0);
+    const [orderHelperText, setOrderHelperText] = useState<string>("");
+    const [orderHelperTextContinued, setOrderHelperTextContinued] = useState<string>("");
+    const [showHelperText, setShowHelperText] = useState<boolean>(false);
+    const [refreshCount, setRefreshCount] = useState<number>(0);
 
-    const [orderHelperText, setOrderHelperText] = useState<string>("")
-    const [orderHelperTextContinued, setOrderHelperTextContinued] = useState<string>("")
-
-    const [showHelperText, setShowHelperText] = useState<boolean>(false)
+    const matchingModels: Product[] = [];
 
     const setUpdateQuantityFromInput = (event: string) => {
         setInputQuantity(parseInt(event));
     };
 
     const handleAddQuantityOnClick = (id: number) => {
-        updateProductQuantity(id, inputQuantity).then(() => {
-            getProducts().then(setProducts)
-        });
+        updateProductQuantity(id, inputQuantity);
+        setRefreshCount(prevState => prevState + 1);
+
     }
 
     const handleChangeOrder = (event: string) => {
@@ -45,10 +45,8 @@ const App = () => {
         const orderTotal: number | undefined = inputOrder
         if (orderTotal) {
             // helperText(product, orderTotal)
-            updateProductOrder(product.id, helperText(product, orderTotal)).then(() => {
-                getProducts().then(setProducts)
-            })
-
+            updateProductOrder(product.id, helperText(product, orderTotal));
+            setRefreshCount(prevState => prevState + 1);
         }
         setInputOrder(0);
     };
@@ -93,7 +91,7 @@ const App = () => {
 
     useEffect(() => {
         getProducts().then(setProducts);
-    }, []);
+    }, [refreshCount]);
 
     const handleClose = () => {
         setShowHelperText(false);
@@ -115,9 +113,34 @@ const App = () => {
         </React.Fragment>
     );
 
+    //thoughts: if I make a copy of the OG products list, I can reference that when comparing my text search
+    function searchModelByText(text: string) {
+        let filterCriteria: string = "";
+        let isListAffected = false;
+        filterCriteria = text;
+        console.log(filterCriteria);
+        if(!filterCriteria){setRefreshCount(prevState => prevState + 1);}
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].model === filterCriteria) {
+                matchingModels.push(products[i]);
+                isListAffected = true;
+            }
+        }
+        if(isListAffected) {
+            console.log(matchingModels);
+            setProducts(matchingModels);
+        }
+    }
+
     return (
         <>
             <h1>Parts Unlimited Inventory</h1>
+
+
+            <TextField onChange={(e) => {
+                searchModelByText(e.target.value)
+            }} aria-label="search by model" label="Search by Model"></TextField>
+
             <TableContainer sx={{mx: 1, my: 1}}>
                 <Table sx={{minWidth: 650}} aria-label="simple table">
                     <TableHead>
