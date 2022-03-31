@@ -96,13 +96,20 @@ describe("inventory", () => {
         it('should narrow list of products when search text matches their model', async () => {
             mockGetProducts.mockResolvedValue([
               {id: 1, name: "Ryzen-7", quantity: 90, model: "2700X"},
-              {id: 2, name: "Ryzen-7", quantity: 90, model: "2700X"},
+              {id: 2, name: "Ryzen-7", quantity: 90, model: "2700"},
               {id: 3, name: "Ryzen-7", quantity: 90, model: "3700X"}]);
 
             render(<App/>);
 
             expect(await screen.findByLabelText('search by model')).toBeVisible();
 
+            userEvent.type(screen.getByLabelText('search by model'), '2700X');
+
+            waitFor(() => {
+                expect(screen.queryByText('2700')).not.toBeInTheDocument();
+                expect(screen.queryByText('3700X')).not.toBeInTheDocument();
+                expect(screen.queryByText('2700X')).toBeInTheDocument();
+            })
         })
     })
 });

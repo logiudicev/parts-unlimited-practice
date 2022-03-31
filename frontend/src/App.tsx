@@ -1,4 +1,4 @@
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {FormEvent, useEffect, useMemo, useState} from "react";
 import {createProduct, getProducts, updateProductOrder, updateProductQuantity} from "./productsApiClient";
 import {
     Box,
@@ -16,7 +16,6 @@ import {Product} from "./product";
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
-    const [originalProducts, setOriginalProducts] =  useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
     const [productModel, setProductModel] = useState<string>("New Model");
     const [inputQuantity, setInputQuantity] = useState<number>(0);
@@ -26,14 +25,25 @@ const App = () => {
     const [showHelperText, setShowHelperText] = useState<boolean>(false);
     const [refreshCount, setRefreshCount] = useState<number>(0);
 
+
+    const [filterCriteria, setFilterCriteria] = useState<string>("");
+
+    const filterProducts = useMemo(() => filterCriteria.length ? products.filter(product => product.model === filterCriteria) : products, [filterCriteria, products])
+
     const matchingModels: Product[] = [];
 
     const setUpdateQuantityFromInput = (event: string) => {
         setInputQuantity(parseInt(event));
     };
 
-    const handleAddQuantityOnClick = (id: number) => {
-        updateProductQuantity(id, inputQuantity);
+    const handleAddQuantityOnClick = async (id: number) => {
+        const updatedProduct = await updateProductQuantity(id, inputQuantity);
+        setProducts(products.map(product => {
+            if(product.id === id){
+                return updatedProduct;
+            }
+            return product;
+        }))
         setRefreshCount(prevState => prevState + 1);
 
     }
@@ -92,10 +102,6 @@ const App = () => {
 
     useEffect(() => {
         getProducts().then(setProducts);
-    }, [refreshCount]);
-
-    useEffect(() => {
-        getProducts().then(setOriginalProducts);
     }, []);
 
     const handleClose = () => {
@@ -118,29 +124,7 @@ const App = () => {
         </React.Fragment>
     );
 
-    //thoughts: if I make a copy of the OG products list, I can reference that when comparing my text search
-    function searchModelByText(text: string) {
-        let filterCriteria: string = "";
-        let isListAffected = false;
-        filterCriteria = text;
-        console.log(filterCriteria);
 
-        if(!filterCriteria){setRefreshCount(prevState => prevState + 1);}
-        for (let i = 0; i < originalProducts.length; i++) {
-            if (originalProducts[i].model === filterCriteria) {
-                matchingModels.push(originalProducts[i]);
-                isListAffected = true;
-            }
-            else{
-                setProducts([])
-                console.log(originalProducts)
-            }
-        }
-        if(isListAffected) {
-            console.log(matchingModels);
-            setProducts(matchingModels);
-        }
-    }
 
     return (
         <>
@@ -148,7 +132,7 @@ const App = () => {
 
 
             <TextField onChange={(e) => {
-                searchModelByText(e.target.value)
+                setFilterCriteria(e.target.value)
             }} aria-label="search by model" label="Search by Model"></TextField>
 
             <TableContainer sx={{mx: 1, my: 1}}>
@@ -157,7 +141,7 @@ const App = () => {
                         <TableRow>
                             <TableCell>
                                 <h2>Product</h2>
-                                {products.map((product, index) => (
+                                {filterProducts.map((product, index) => (
                                     <Box key={index}
                                          sx={{height: '37px', lineHeight: "2.3"}}>{product.name}
                                     </Box>
@@ -166,7 +150,7 @@ const App = () => {
 
                             <TableCell>
                                 <h2>Model</h2>
-                                {products.map((product, index) => (
+                                {filterProducts.map((product, index) => (
                                     <Box key={index}
                                          sx={{height: '37px', lineHeight: "2.3"}}>{product.model}</Box>
                                 ))}
@@ -174,7 +158,7 @@ const App = () => {
 
                             <TableCell>
                                 <h2>Quantity</h2>
-                                {products.map((product, index) => (
+                                {filterProducts.map((product, index) => (
                                     <Box key={index}
                                          sx={{height: '37px', textAlign: "center", lineHeight: "2.3"}}
                                          aria-label={product.name + " " + product.quantity}>
@@ -184,7 +168,7 @@ const App = () => {
                             </TableCell>
                             <TableCell>
                                 <h2>Enter Quantity</h2>
-                                {products.map((product, index) =>
+                                {filterProducts.map((product, index) =>
                                     <Box key={index}>
                                         <TextField
                                             type='number'
@@ -203,7 +187,7 @@ const App = () => {
 
                             <TableCell>
                                 <h2>Enter Order</h2>
-                                {products.map((product, index) =>
+                                {filterProducts.map((product, index) =>
                                     <Box key={index}>
                                         <TextField
                                             size={"small"} sx={{height: '37px', textAlign: "left", lineHeight: "2.3"}}
