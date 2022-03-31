@@ -16,6 +16,7 @@ import {Product} from "./product";
 
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [originalProducts, setOriginalProducts] =  useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
     const [productModel, setProductModel] = useState<string>("New Model");
     const [inputQuantity, setInputQuantity] = useState<number>(0);
@@ -93,6 +94,10 @@ const App = () => {
         getProducts().then(setProducts);
     }, [refreshCount]);
 
+    useEffect(() => {
+        getProducts().then(setOriginalProducts);
+    }, []);
+
     const handleClose = () => {
         setShowHelperText(false);
     };
@@ -119,11 +124,16 @@ const App = () => {
         let isListAffected = false;
         filterCriteria = text;
         console.log(filterCriteria);
+
         if(!filterCriteria){setRefreshCount(prevState => prevState + 1);}
-        for (let i = 0; i < products.length; i++) {
-            if (products[i].model === filterCriteria) {
-                matchingModels.push(products[i]);
+        for (let i = 0; i < originalProducts.length; i++) {
+            if (originalProducts[i].model === filterCriteria) {
+                matchingModels.push(originalProducts[i]);
                 isListAffected = true;
+            }
+            else{
+                setProducts([])
+                console.log(originalProducts)
             }
         }
         if(isListAffected) {
