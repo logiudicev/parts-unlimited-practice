@@ -23,28 +23,23 @@ const App = () => {
     const [orderHelperText, setOrderHelperText] = useState<string>("");
     const [orderHelperTextContinued, setOrderHelperTextContinued] = useState<string>("");
     const [showHelperText, setShowHelperText] = useState<boolean>(false);
-    const [refreshCount, setRefreshCount] = useState<number>(0);
-
 
     const [filterCriteria, setFilterCriteria] = useState<string>("");
 
     const filterProducts = useMemo(() => filterCriteria.length ? products.filter(product => product.model === filterCriteria) : products, [filterCriteria, products])
-
-    const matchingModels: Product[] = [];
 
     const setUpdateQuantityFromInput = (event: string) => {
         setInputQuantity(parseInt(event));
     };
 
     const handleAddQuantityOnClick = async (id: number) => {
-        const updatedProduct = await updateProductQuantity(id, inputQuantity);
+        const updatedProductQuantity = await updateProductQuantity(id, inputQuantity);
         setProducts(products.map(product => {
             if(product.id === id){
-                return updatedProduct;
+                return updatedProductQuantity;
             }
             return product;
         }))
-        setRefreshCount(prevState => prevState + 1);
 
     }
 
@@ -52,14 +47,18 @@ const App = () => {
         setInputOrder(parseInt(event))
     }
 
-    const handleOrderFulfillOnClick = (product: Product) => {
+    const handleOrderFulfillOnClick = async (product: Product) => {
         const orderTotal: number | undefined = inputOrder
         if (orderTotal) {
             // helperText(product, orderTotal)
-            updateProductOrder(product.id, helperText(product, orderTotal));
-            setRefreshCount(prevState => prevState + 1);
+           const updatedProductOrder = await updateProductOrder(product.id, helperText(product, orderTotal));
+           setProducts(products.map(productOrder => {
+               if(productOrder.id === product.id){
+                   return updatedProductOrder;
+               }
+               return productOrder;
+           }))
         }
-        setInputOrder(0);
     };
 
     const helperText = (product: Product, orderTotal: number | undefined): number | undefined => {
