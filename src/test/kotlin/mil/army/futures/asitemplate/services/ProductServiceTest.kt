@@ -10,6 +10,7 @@ import mil.army.futures.asitemplate.repositories.ProductRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.data.repository.findByIdOrNull
 
 @ExtendWith(MockKExtension::class)
 internal class ProductServiceTest {
@@ -38,5 +39,15 @@ internal class ProductServiceTest {
         productService.addProduct(productName)
 
         verify { productRepository.save(productToSave) }
+    }
+
+    @Test
+    fun `should update a product quantity given a quantity`() {
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 20)
+        every { productRepository.save(any()) } answers { firstArg() }
+
+        productService.updateProductQuantity(1, "20")
+
+        verify { productRepository.save(Product(1, "first-product", 40)) }
     }
 }
