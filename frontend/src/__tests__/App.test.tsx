@@ -2,12 +2,13 @@ import React from "react";
 import {fireEvent, render, screen, waitFor} from "@testing-library/react";
 import App from "../App";
 import userEvent from "@testing-library/user-event";
-import {createProduct, getProducts} from "../productsApiClient";
+import {createProduct, getProducts, updateProductQuantity} from "../productsApiClient";
 
 jest.mock("../productsApiClient");
 
 const mockGetProducts = getProducts as jest.MockedFunction<typeof getProducts>;
 const mockCreateProduct = createProduct as jest.MockedFunction<typeof createProduct>;
+const mockUpdateProductQuantity = updateProductQuantity as jest.MockedFunction<typeof updateProductQuantity>
 
 const addProduct = (product: string) => {
     userEvent.type(screen.getByLabelText("Product to add"), product);
@@ -17,13 +18,13 @@ const addProduct = (product: string) => {
 describe("inventory", () => {
     describe("when I view the inventory", () => {
         it("should display the products", async () => {
-            mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
+            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", quantity: 0}]);
 
             render(<App/>);
 
             expect(screen.getByText("Parts Unlimited Inventory")).toBeInTheDocument();
             expect(screen.getByText("Product")).toBeInTheDocument();
-            expect(await screen.findByText("a product")).toBeInTheDocument();
+            await waitFor(() => expect(screen.getAllByText("wrench")[0]).toBeInTheDocument());
         });
 
         it("should display the products' quantities", async () => {
@@ -46,7 +47,7 @@ describe("inventory", () => {
             addProduct("shiny new product");
 
             expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product");
-            expect(await screen.findByText("shiny new product")).toBeInTheDocument();
+            await waitFor(() => expect(screen.getAllByText("shiny new product")[0]).toBeInTheDocument());
 
             userEvent.selectOptions
         });
@@ -55,8 +56,10 @@ describe("inventory", () => {
     describe("when I increase the quantity of a given product", () => {
         it("should display the updated quantity for the given product", async () => {
             mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", quantity: 10}])
+            mockUpdateProductQuantity.mockResolvedValue({id: 1, name: "wrench", quantity: 30})
 
             render(<App/>)
+            expect(await screen.findByText("10")).toBeVisible();
 
             userEvent.click(screen.getByLabelText('Select a Product'));
             userEvent.click(await screen.findByRole('option', {name: "wrench"}));
