@@ -1,2 +1,2 @@
-alter table product
-    add column model text not null;
+-- alter table product
+--     add column model text not null;

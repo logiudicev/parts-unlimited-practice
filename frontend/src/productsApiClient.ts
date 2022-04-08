@@ -9,6 +9,6 @@ export async function getProducts(): Promise<Product[]> {
   return (await axios.get<Product[]>("/products")).data
 }
 
-export async function updateProductQuantity(id: string, quantity: number): Promise<Product> {
-  return (await axios.post<product>(`/products/updatequantity/${id}`, quantity, {headers: {'Content-Type': 'text/plain'}})).data
+export async function updateProductQuantity(id: number | undefined, quantity: number): Promise<Product> {
+  return (await axios.post<Product>(`/products/updatequantity/${id}`, quantity, {headers: {'Content-Type': 'text/plain'}})).data
 }
