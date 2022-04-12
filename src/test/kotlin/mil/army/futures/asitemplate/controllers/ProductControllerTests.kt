@@ -66,6 +66,26 @@ internal class ProductControllerTests {
     }
 
     @Test
+    fun `should reduce a product quantity of an existing product when ordered`() {
+        every { productService.updateProductOrderAmount(1L, "25") } returns Product(
+            id = 1L,
+            name = "first-product-name",
+            quantity = 25,
+        )
+
+        mockMvc.post("/products/orderfulfillment/1") {
+            contentType = MediaType.TEXT_PLAIN
+            content = "25"
+        }.andExpect {
+            status { isOk() }
+            content { string(containsString("25")) }
+        }
+        verify(exactly = 1) {
+            productService.updateProductOrderAmount(1L, "25")
+        }
+    }
+
+    @Test
     fun `should retrieve all products when getting products`() {
         every { productService.getProducts() } returns listOf(
             Product(id = 1L, name = "first-product-name", quantity = 0),

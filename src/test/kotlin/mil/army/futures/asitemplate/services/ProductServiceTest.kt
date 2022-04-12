@@ -50,4 +50,24 @@ internal class ProductServiceTest {
 
         verify { productRepository.save(Product(1, "first-product", 40)) }
     }
+
+    @Test
+    fun `should update a product quantity given an order amount`() {
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 40)
+        every { productRepository.save(any()) } answers { firstArg() }
+
+        productService.updateProductOrderAmount(1, "20")
+
+        verify { productRepository.save(Product(1, "first-product", 20)) }
+    }
+
+    @Test
+    fun `should update a product quantity given an order amount exceeding current product quantity and not result in less than 0`() {
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 20)
+        every { productRepository.save(any()) } answers { firstArg() }
+
+        productService.updateProductOrderAmount(1, "30")
+
+        verify { productRepository.save(Product(1, "first-product", 0)) }
+    }
 }

@@ -22,6 +22,11 @@ class ProductController(private val productService: ProductService) {
         return productService.updateProductQuantity(id, quantity)
     }
 
+    @PostMapping("/products/orderfulfillment/{id}")
+    fun updateProductOrderAmount(@PathVariable id: Long, @RequestBody orderAmount: String): Product {
+        return productService.updateProductOrderAmount(id, orderAmount)
+    }
+
     @GetMapping("/hi")
     fun sayHi(): String {
         return "hi"

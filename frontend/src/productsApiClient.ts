@@ -12,3 +12,7 @@ export async function getProducts(): Promise<Product[]> {
 export async function updateProductQuantity(id: number | undefined, quantity: number): Promise<Product> {
   return (await axios.post<Product>(`/products/updatequantity/${id}`, quantity, {headers: {'Content-Type': 'text/plain'}})).data
 }
+
+export async function updateProductOrderAmount(id: number | undefined, orderAmount: number): Promise<Product> {
+  return (await axios.post<Product>(`/products/orderfulfillment/${id}`, orderAmount, {headers: {'Content-Type': 'text/plain'}})).data
+}

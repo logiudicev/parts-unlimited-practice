@@ -19,4 +19,12 @@ class ProductService(private val productRepository: ProductRepository) {
         val product = productRepository.findByIdOrNull(id) ?: error("nothing found")
         return productRepository.save(product.copy(quantity = updatedQuantity.toInt() + product.quantity))
     }
+
+    fun updateProductOrderAmount(id: Long, updateOrderAmount: String): Product {
+        val product = productRepository.findByIdOrNull(id) ?: error("nothing found")
+        val orderTotal = updateOrderAmount.toInt();
+        val orderResult = productRepository.save(product.copy(quantity = product.quantity - orderTotal))
+
+        return orderResult
+    }
 }
