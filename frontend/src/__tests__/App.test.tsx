@@ -16,6 +16,24 @@ const addProduct = (product: string) => {
     userEvent.click(screen.getByRole("button", {name: /submit/i}));
 }
 
+async function fulfillAnOrder(name: string, originalQuantity: number, newQuantity: number, orderAmount: number) {
+    mockGetProducts.mockResolvedValue([{id: 1, name: name, quantity: originalQuantity}])
+    mockUpdateProductOrderAmount.mockResolvedValue({id: 1, name: name, quantity: newQuantity})
+
+    render(<App/>)
+
+    expect(await screen.findByText(originalQuantity)).toBeVisible();
+
+    userEvent.click(screen.getByLabelText('Select a Product'));
+    userEvent.click(await screen.findByRole('option', {name: name}));
+
+    userEvent.type(screen.getByLabelText("Enter a Product Order Amount"), orderAmount.toString());
+
+    userEvent.click(await screen.findByText(/add order/i));
+
+    await waitFor(() => expect(screen.getByText(newQuantity)).toBeInTheDocument())
+}
+
 describe("inventory", () => {
     describe("when I view the inventory", () => {
         it("should display the products", async () => {
@@ -74,21 +92,11 @@ describe("inventory", () => {
 
     describe("when I order a product", () => {
         it("should display the subtracted quantity in the quantity column", async () => {
-            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", quantity: 60}])
-            mockUpdateProductOrderAmount.mockResolvedValue({id: 1, name: "wrench", quantity: 0})
-
-            render(<App/>)
-
-            expect(await screen.findByText("60")).toBeVisible();
-
-            userEvent.click(screen.getByLabelText('Select a Product'));
-            userEvent.click(await screen.findByRole('option', {name: "wrench"}));
-
-            userEvent.type(screen.getByLabelText("Enter a Product Order Amount"), "10");
-
-            userEvent.click(await screen.findByText(/add order/i));
-
-            await waitFor(() => expect(screen.getByText("50")).toBeInTheDocument())
+            await fulfillAnOrder("wrench", 60, 50, 10);
+        })
+        it("should display a dialog with a confirmation message upon fulfilling a complete order", async () => {
+            await fulfillAnOrder("Screw Driver", 50, 40, 20)
+            //TODO display: You will receive “Screw Driver” x 5.
         })
     })
 });
