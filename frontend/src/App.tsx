@@ -1,6 +1,17 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {createProduct, getProducts, updateProductOrderAmount, updateProductQuantity} from "./productsApiClient";
-import {Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Stack, TextField} from "@mui/material";
+import {
+    Box,
+    Button,
+    Container,
+    Dialog, DialogContent, DialogContentText, DialogTitle,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    Stack,
+    TextField
+} from "@mui/material";
 import {Product} from "./product";
 
 const App = () => {
@@ -9,6 +20,9 @@ const App = () => {
     const [selectedProduct, setSelectedProduct] = useState<Product>()
     const [quantityInput, setQuantityInput] = useState<number>(0);
     const [orderAmountInput, setOrderAmountInput] = useState<number>(0);
+    const [openModal, setOpenModal] = useState<boolean>(false);
+
+    const [productQuantityBeforeOrder, setProductQuantityBeforeOrder] = useState<number>(0);
 
     const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
         setProductName(event.currentTarget.value);
@@ -35,6 +49,7 @@ const App = () => {
             const updatedProductQuantity = await updateProductQuantity(id, quantityInput);
             setProducts(products.map(product => {
                 if (product.id === id && updatedProductQuantity !== undefined || null) {
+                    setProductQuantityBeforeOrder(updatedProductQuantity.quantity)
                     return updatedProductQuantity;
                 }
                 return product;
@@ -47,10 +62,23 @@ const App = () => {
         const updatedProductOrderAmount = await updateProductOrderAmount(id, orderAmountInput);
         setProducts(products.map(product => {
             if (product.id === id && updatedProductOrderAmount !== undefined || null) {
+                if(id) setProductQuantityBeforeOrder(product.quantity)
+                setOpenModal(true);
                 return updatedProductOrderAmount;
             }
             return product;
         }))
+    };
+
+    const handleCloseConfirmModal = () => {
+        //TODO: Insert sweet logic
+    };
+
+    const DialogHelper = () => {
+        if(selectedProduct) {
+            const actualOrderAmount = productQuantityBeforeOrder >= orderAmountInput ? orderAmountInput : productQuantityBeforeOrder;
+            return `You will receive "${selectedProduct.name}" X ` + actualOrderAmount;
+        }
     };
 
     return (
@@ -125,6 +153,18 @@ const App = () => {
                     ))}
                 </Box>
             </Box>
+            <Dialog title="confirmation" open={openModal}>
+
+                <DialogTitle id="confirmation">
+                    Confirmation
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="confirmation">
+                        {DialogHelper()}
+                    </DialogContentText>
+                    <Button onClick={handleCloseConfirmModal}>Nice, thanks bro!</Button>
+                </DialogContent>
+            </Dialog>
         </Container>
     );
 }
