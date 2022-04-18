@@ -1,5 +1,5 @@
 import React from "react";
-import {fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {render, screen, waitFor} from "@testing-library/react";
 import App from "../App";
 import userEvent from "@testing-library/user-event";
 import {createProduct, getProducts, updateProductOrderAmount, updateProductQuantity} from "../productsApiClient";
@@ -15,10 +15,14 @@ const addProduct = (product: string) => {
     userEvent.type(screen.getByLabelText("Product to add"), product);
     userEvent.click(screen.getByRole("button", {name: /submit/i}));
 }
+const addModel = (model: string) => {
+    userEvent.type(screen.getByLabelText("Model Number"), model);
+    userEvent.click(screen.getByRole("button", {name: /submit model/i}));
+}
 
 async function fulfillAnOrder(name: string, originalQuantity: number, newQuantity: number, orderAmount: number) {
-    mockGetProducts.mockResolvedValue([{id: 1, name: name, quantity: originalQuantity}])
-    mockUpdateProductOrderAmount.mockResolvedValue({id: 1, name: name, quantity: newQuantity})
+    mockGetProducts.mockResolvedValue([{id: 1, name: name, model: "generic",quantity: originalQuantity}])
+    mockUpdateProductOrderAmount.mockResolvedValue({id: 1, name: name, model: "generic", quantity: newQuantity})
 
     render(<App/>)
 
@@ -37,7 +41,7 @@ async function fulfillAnOrder(name: string, originalQuantity: number, newQuantit
 describe("inventory", () => {
     describe("when I view the inventory", () => {
         it("should display the products", async () => {
-            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", quantity: 0}]);
+            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", model: "generic", quantity: 0}]);
 
             render(<App/>);
 
@@ -47,7 +51,7 @@ describe("inventory", () => {
         });
 
         it("should display the products' quantities", async () => {
-            mockGetProducts.mockResolvedValue([{id: 1, name: "a product", quantity: 0}]);
+            mockGetProducts.mockResolvedValue([{id: 1, name: "a product", model: "generic", quantity: 0}]);
 
             render(<App/>);
 
@@ -58,9 +62,9 @@ describe("inventory", () => {
 
     describe("when I add a new product", () => {
         it("should display the new product", async () => {
-            mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", quantity: 0});
+            mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", model: "generic", quantity: 0});
             mockGetProducts.mockResolvedValueOnce([]);
-            mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", quantity: 0}]);
+            mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", model: "generic", quantity: 0}]);
 
             render(<App/>);
             addProduct("shiny new product");
@@ -70,12 +74,23 @@ describe("inventory", () => {
 
             userEvent.selectOptions
         });
+        it("should display the new product model number", async () => {
+            mockCreateProduct.mockResolvedValueOnce({id: 1, name: "shiny new product", model: "generic", quantity: 0});
+            mockGetProducts.mockResolvedValueOnce([]);
+            mockGetProducts.mockResolvedValueOnce([{id: 1, name: "shiny new product", model: "generic", quantity: 0}]);
+
+            render(<App/>);
+            addModel("generic");
+
+            expect(mockCreateProduct).toHaveBeenCalledWith("generic");
+            await waitFor(() => expect(screen.getAllByText("generic")[0]).toBeInTheDocument())
+        })
     });
 
     describe("when I increase the quantity of a given product", () => {
         it("should display the updated quantity for the given product", async () => {
-            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", quantity: 10}])
-            mockUpdateProductQuantity.mockResolvedValue({id: 1, name: "wrench", quantity: 30})
+            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", model: "generic", quantity: 10}])
+            mockUpdateProductQuantity.mockResolvedValue({id: 1, name: "wrench", model: "generic", quantity: 30})
 
             render(<App/>)
             expect(await screen.findByText("10")).toBeVisible();
