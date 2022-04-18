@@ -95,9 +95,12 @@ describe("inventory", () => {
             await fulfillAnOrder("wrench", 60, 50, 10);
         })
         it("should display a dialog with a confirmation message upon fulfilling a complete order", async () => {
-            //TODO display: You will receive “Screw Driver” x 5.
             await fulfillAnOrder("Screw Driver", 50, 40, 20)
-            expect(screen.getByText('You will receive "Screw Driver" x 5.'))
+            expect(screen.getByText('You will receive "Screw Driver" X 20.'))
+        })
+        it("should display a dialog with confirmation message upon fulfilling a partial order", async () => {
+            await fulfillAnOrder("Screw Driver", 50, 40, 60)
+            expect(screen.getByText('You will receive "Screw Driver" X 50. Note that your order was NOT completely fulfilled. Your delivery will be short 10 items.'))
         })
     })
 });

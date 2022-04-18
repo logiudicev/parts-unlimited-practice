@@ -71,13 +71,20 @@ const App = () => {
     };
 
     const handleCloseConfirmModal = () => {
-        //TODO: Insert sweet logic
+        setOpenModal(false)
     };
 
     const DialogHelper = () => {
         if(selectedProduct) {
+            const excessOrderAmount = productQuantityBeforeOrder <= orderAmountInput ? orderAmountInput - productQuantityBeforeOrder : 0;
             const actualOrderAmount = productQuantityBeforeOrder >= orderAmountInput ? orderAmountInput : productQuantityBeforeOrder;
-            return `You will receive "${selectedProduct.name}" X ` + actualOrderAmount;
+            const happyPath = `You will receive "${selectedProduct.name}" X ` + actualOrderAmount + '. ';
+            const unhappyPath = `Note that your order was NOT completely fulfilled. Your delivery will be short ${excessOrderAmount} items.`
+            if(excessOrderAmount === 0){
+                return happyPath
+            } else{
+                return happyPath + unhappyPath
+            }
         }
     };
 
