@@ -1,4 +1,4 @@
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {FormEvent, useEffect, useMemo, useState} from "react";
 import {createProduct, getProducts, updateProductOrderAmount, updateProductQuantity} from "./productsApiClient";
 import {
     Box,
@@ -22,8 +22,11 @@ const App = () => {
     const [quantityInput, setQuantityInput] = useState<number>(0);
     const [orderAmountInput, setOrderAmountInput] = useState<number>(0);
     const [openModal, setOpenModal] = useState<boolean>(false);
+    const [filterCriteria, setFilterCriteria] = useState<string>("")
 
     const [productQuantityBeforeOrder, setProductQuantityBeforeOrder] = useState<number>(0);
+
+    const filterProducts = useMemo(() => filterCriteria.length ? products.filter(product => product.model === filterCriteria) : products, [filterCriteria, products])
 
     const submitForm = (event: FormEvent) => {
         event.preventDefault();
@@ -43,14 +46,14 @@ const App = () => {
     const addQuantityToSelectedProduct = async () => {
         const id = selectedProduct?.id
 
-            const updatedProductQuantity = await updateProductQuantity(id, quantityInput);
-            setProducts(products.map(product => {
-                if (product.id === id && updatedProductQuantity !== undefined || null) {
-                    setProductQuantityBeforeOrder(updatedProductQuantity.quantity)
-                    return updatedProductQuantity;
-                }
-                return product;
-            }))
+        const updatedProductQuantity = await updateProductQuantity(id, quantityInput);
+        setProducts(products.map(product => {
+            if (product.id === id && updatedProductQuantity !== undefined || null) {
+                setProductQuantityBeforeOrder(updatedProductQuantity.quantity)
+                return updatedProductQuantity;
+            }
+            return product;
+        }))
     };
 
     const addOrderFulfillmentToSelectedProduct = async () => {
@@ -59,7 +62,7 @@ const App = () => {
         const updatedProductOrderAmount = await updateProductOrderAmount(id, orderAmountInput);
         setProducts(products.map(product => {
             if (product.id === id && updatedProductOrderAmount !== undefined || null) {
-                if(id) setProductQuantityBeforeOrder(product.quantity)
+                if (id) setProductQuantityBeforeOrder(product.quantity)
                 setOpenModal(true);
                 return updatedProductOrderAmount;
             }
@@ -72,14 +75,14 @@ const App = () => {
     };
 
     const DialogHelper = () => {
-        if(selectedProduct) {
+        if (selectedProduct) {
             const excessOrderAmount = productQuantityBeforeOrder <= orderAmountInput ? orderAmountInput - productQuantityBeforeOrder : 0;
             const actualOrderAmount = productQuantityBeforeOrder >= orderAmountInput ? orderAmountInput : productQuantityBeforeOrder;
             const happyPath = `You will receive "${selectedProduct.name} - ${selectedProduct.model}" X ` + actualOrderAmount + '. ';
             const unhappyPath = `Note that your order was NOT completely fulfilled. Your delivery will be short ${excessOrderAmount} items.`
-            if(excessOrderAmount === 0){
+            if (excessOrderAmount === 0) {
                 return happyPath
-            } else{
+            } else {
                 return happyPath + unhappyPath
             }
         }
@@ -91,21 +94,23 @@ const App = () => {
             <Box display='flex' flexDirection='row'>
                 <Box>
                     <h2>Product</h2>
-                    {products.map((product, index) => (
+                    {filterProducts.map((product, index) => (
                         <div key={index}>{product.name}</div>
                     ))}
-                    
-                        <form onSubmit={submitForm}>
-                            <br/>
-                            <button type="submit">Submit</button>
-                            <Box>
-                                <TextField label="Product to add" name="product" type="text" size='small' onChange={(event) => setProductName(event.currentTarget.value)}/>
-                            </Box>
 
-                        </form>
-                    
+                    <form onSubmit={submitForm}>
+                        <br/>
+                        <button type="submit">Submit</button>
+                        <Box>
+                            <TextField label="Product to add" name="product" type="text" size='small'
+                                       onChange={(event) => setProductName(event.currentTarget.value)}/>
+                        </Box>
+
+                    </form>
+
                     <Box>
-                        <TextField label="Model Number" size='small' onChange={(event) => setProductModel(event.currentTarget.value)}>
+                        <TextField label="Model Number" size='small'
+                                   onChange={(event) => setProductModel(event.currentTarget.value)}>
                             Model Number
                         </TextField>
                     </Box>
@@ -116,7 +121,7 @@ const App = () => {
                             <Select labelId="select-product" value={selectedProduct ? selectedProduct.name : ""}
                                     label="Select a Product"
                             >
-                                {products.map((product, index) => (
+                                {filterProducts.map((product, index) => (
                                     <MenuItem value={product.name} key={index}
                                               onClick={() => handleSelectProduct(product)}>{product.name}</MenuItem>
                                 ))}
@@ -144,29 +149,33 @@ const App = () => {
                                    sx={{marginTop: "10px"}}
                                    onChange={(orderAmount) => {
                                        if (!Number.isNaN(orderAmount.target.value)) {
-                                          setOrderAmountInput(parseInt(orderAmount.target.value));
+                                           setOrderAmountInput(parseInt(orderAmount.target.value));
                                        }
                                    }}>
                         </TextField>
                         <Button variant="contained" color="success" sx={{height: "55px", marginTop: "10px"}}
                                 onClick={addOrderFulfillmentToSelectedProduct}
                         >
-                           Add Order
+                            Add Order
                         </Button>
                     </Box>
+                    <Box>
+                        <TextField label="Search by Model" margin='normal' onChange={(text) => setFilterCriteria(text.target.value)}>
 
+                        </TextField>
+                    </Box>
                 </Box>
 
                 <Box>
                     <h2>Quantity</h2>
-                    {products.map((product, index) => (
+                    {filterProducts.map((product, index) => (
                         <div key={index}>{product.quantity}</div>
                     ))}
                 </Box>
 
                 <Box marginLeft="150px">
                     <h2>Model</h2>
-                    {products.map((product, index) => (
+                    {filterProducts.map((product, index) => (
                         <div key={index}>{product.model}</div>
                     ))}
                 </Box>

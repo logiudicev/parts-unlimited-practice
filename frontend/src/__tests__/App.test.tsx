@@ -119,8 +119,14 @@ describe("inventory", () => {
         })
     })
     describe("when I search for a product by model number", () => {
-        it("should filter list", () => {
+        it("should filter list", async () => {
+            mockGetProducts.mockResolvedValue([{id: 1, name: "wrench", model: "generic", quantity: 10}])
+            mockGetProducts.mockResolvedValue([{id: 1, name: "car door", model: "sweet door 1125", quantity: 10}])
+            render(<App/>);
 
+            userEvent.type(screen.getByLabelText("Search by Model"), "generic");
+
+            await waitFor(() => expect(screen.queryByText("sweet door 1125")).not.toBeInTheDocument());
         })
     })
 });
