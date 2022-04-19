@@ -22,7 +22,7 @@ internal class ProductServiceTest {
 
     @Test
     fun `should retrieve all products`() {
-        val expectedProducts = listOf(Product(1L, "first-product", 0), Product(2L, "second-product", 0))
+        val expectedProducts = listOf(Product(1L, "first-product", "1125", 0), Product(2L, "second-product","1125" ,0))
         every { productRepository.findAll() } returns expectedProducts
 
         val actualProducts: List<Product> = productService.getProducts()
@@ -34,40 +34,41 @@ internal class ProductServiceTest {
     fun `should create a new product`() {
         every { productRepository.save(any()) } answers { firstArg() }
         val productName = "first-product"
+        val productModel = "1125"
         val productToSave = Product(name = productName, quantity = 0)
 
-        productService.addProduct(productName)
+        productService.addProduct(productName, productModel)
 
         verify { productRepository.save(productToSave) }
     }
 
     @Test
     fun `should update a product quantity given a quantity`() {
-        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 20)
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", "1125",20)
         every { productRepository.save(any()) } answers { firstArg() }
 
         productService.updateProductQuantity(1, "20")
 
-        verify { productRepository.save(Product(1, "first-product", 40)) }
+        verify { productRepository.save(Product(1, "first-product", "1125",40)) }
     }
 
     @Test
     fun `should update a product quantity given an order amount`() {
-        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 40)
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", "1125", 40)
         every { productRepository.save(any()) } answers { firstArg() }
 
         productService.updateProductOrderAmount(1, "20")
 
-        verify { productRepository.save(Product(1, "first-product", 20)) }
+        verify { productRepository.save(Product(1, "first-product", "1125",20)) }
     }
 
     @Test
     fun `should update a product quantity given an order amount exceeding current product quantity and not result in less than 0`() {
-        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", 20)
+        every { productRepository.findByIdOrNull(1) } returns Product(1, "first-product", "1125" ,20)
         every { productRepository.save(any()) } answers { firstArg() }
 
         productService.updateProductOrderAmount(1, "30")
 
-        verify { productRepository.save(Product(1, "first-product", 0)) }
+        verify { productRepository.save(Product(1, "first-product", "1125",0)) }
     }
 }

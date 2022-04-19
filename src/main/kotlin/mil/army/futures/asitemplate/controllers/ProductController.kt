@@ -12,9 +12,9 @@ class ProductController(private val productService: ProductService) {
         return productService.getProducts()
     }
 
-    @PostMapping("/products")
-    fun addProduct(@RequestBody product: String): Product {
-        return productService.addProduct(product)
+    @PostMapping("/products/{model}")
+    fun addProduct(@RequestBody product: String, @PathVariable model: String): Product {
+        return productService.addProduct(product, model)
     }
 
     @PostMapping("/products/updatequantity/{id}")

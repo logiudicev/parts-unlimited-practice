@@ -26,9 +26,32 @@ internal class ProductControllerTests {
 
     @Test
     fun `should save a new product when a new product is created`() {
-        every { productService.addProduct("first-product-name") } returns Product(
+        every { productService.addProduct("first-product-name", "1125") } returns Product(
             id = 1L,
             name = "first-product-name",
+            model = "1125",
+            quantity = 0
+        )
+
+        mockMvc.post("/products/1125") {
+            contentType = MediaType.TEXT_PLAIN
+            content = "first-product-name"
+        }.andExpect {
+            status { isOk() }
+            content { string(containsString("first-product-name")) }
+        }
+
+        verify(exactly = 1) {
+            productService.addProduct("first-product-name", "1125")
+        }
+    }
+
+    @Test
+    fun `should save a new product with model name when a new product is created`() {
+        every { productService.addProduct("first-product-name", "1125") } returns Product(
+            id = 1L,
+            name = "first-product-name",
+            model = "1125",
             quantity = 0
         )
 
@@ -41,7 +64,7 @@ internal class ProductControllerTests {
         }
 
         verify(exactly = 1) {
-            productService.addProduct("first-product-name")
+            productService.addProduct("first-product-name", "1125")
         }
     }
 

@@ -17,7 +17,6 @@ const addProduct = (product: string) => {
 }
 const addModel = (model: string) => {
     userEvent.type(screen.getByLabelText("Model Number"), model);
-    userEvent.click(screen.getByRole("button", {name: /submit model/i}));
 }
 
 async function fulfillAnOrder(name: string, originalQuantity: number, newQuantity: number, orderAmount: number) {
@@ -81,8 +80,9 @@ describe("inventory", () => {
 
             render(<App/>);
             addModel("generic");
+            addProduct("shiny new product");
 
-            expect(mockCreateProduct).toHaveBeenCalledWith("generic");
+            expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product", "generic");
             await waitFor(() => expect(screen.getAllByText("generic")[0]).toBeInTheDocument())
         })
     });

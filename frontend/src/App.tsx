@@ -17,20 +17,17 @@ import {Product} from "./product";
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
-    const [selectedProduct, setSelectedProduct] = useState<Product>()
+    const [productModel, setProductModel] = useState<string>("");
+    const [selectedProduct, setSelectedProduct] = useState<Product>();
     const [quantityInput, setQuantityInput] = useState<number>(0);
     const [orderAmountInput, setOrderAmountInput] = useState<number>(0);
     const [openModal, setOpenModal] = useState<boolean>(false);
 
     const [productQuantityBeforeOrder, setProductQuantityBeforeOrder] = useState<number>(0);
 
-    const setProductNameFromInput = (event: FormEvent<HTMLInputElement>) => {
-        setProductName(event.currentTarget.value);
-    };
-
     const submitForm = (event: FormEvent) => {
         event.preventDefault();
-        createProduct(productName).then(() => {
+        createProduct(productName, productModel).then(() => {
             getProducts().then(setProducts);
         });
     };
@@ -100,16 +97,15 @@ const App = () => {
                     
                         <form onSubmit={submitForm}>
                             <br/>
-                            <label>
-                                Product to add
-                                <input name="product" type="text" onChange={setProductNameFromInput}/>
-                            </label>
-                                <button type="submit">Submit</button>
+                            <button type="submit">Submit</button>
+                            <Box>
+                                <TextField label="Product to add" name="product" type="text" size='small' onChange={(event) => setProductName(event.currentTarget.value)}/>
+                            </Box>
 
                         </form>
                     
                     <Box>
-                        <TextField size='small'>
+                        <TextField label="Model Number" size='small' onChange={(event) => setProductModel(event.currentTarget.value)}>
                             Model Number
                         </TextField>
                     </Box>

@@ -22,10 +22,25 @@ describe('productsApiClient', () => {
             }).post('/products', 'my-new-product')
                 .reply(200, {name: "my-new-product", quantity: 0});
 
-            const response = await createProduct("my-new-product");
+            const response = await createProduct("my-new-product", "");
 
             expect(scope.isDone()).toEqual(true);
             expect(response.name).toEqual("my-new-product");
+            expect(response.quantity).toEqual(0);
+        });
+        it('should make a POST request to create a product with model number', async () => {
+            const scope = nock('http://localhost', {
+                reqheaders: {
+                    'Content-Type': 'text/plain'
+                }
+            }).post('/products/1125', 'my-new-product')
+                .reply(200, {name: "my-new-product", model:"1125", quantity: 0});
+
+            const response = await createProduct("my-new-product", "1125");
+
+            expect(scope.isDone()).toEqual(true);
+            expect(response.name).toEqual("my-new-product");
+            expect(response.model).toEqual("1125");
             expect(response.quantity).toEqual(0);
         });
     });
@@ -52,13 +67,13 @@ describe('productsApiClient', () => {
                     'Content-Type': 'text/plain'
                 }
             }).post('/products/orderfulfillment/1', '25')
-                .reply(200, {name: "my-new-product", orderAmount: 25});
+                .reply(200, {name: "my-new-product", quantity: 0});
 
             const response = await updateProductOrderAmount(1, 25);
 
             expect(scope.isDone()).toEqual(true);
             expect(response.name).toEqual("my-new-product");
-            expect(response.quantity).toEqual(25);
+            expect(response.quantity).toEqual(0);
         })
     })
 });
