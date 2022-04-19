@@ -97,19 +97,27 @@ const App = () => {
                     {products.map((product, index) => (
                         <div key={index}>{product.name}</div>
                     ))}
-                    <form onSubmit={submitForm}>
-                        <br/>
-                        <label>
-                            Product to add
-                            <input name="product" type="text" onChange={setProductNameFromInput}/>
-                        </label>
-                        <button type="submit">Submit</button>
-                    </form>
+                    
+                        <form onSubmit={submitForm}>
+                            <br/>
+                            <label>
+                                Product to add
+                                <input name="product" type="text" onChange={setProductNameFromInput}/>
+                            </label>
+                                <button type="submit">Submit</button>
+
+                        </form>
+                    
+                    <Box>
+                        <TextField size='small'>
+                            Model Number
+                        </TextField>
+                    </Box>
 
                     <Box sx={{minWidth: 120}}>
                         <Stack>
                             <InputLabel id="select-product">Select a Product</InputLabel>
-                            <Select labelId="select-product" value={selectedProduct ? products.at(0)?.name : ""}
+                            <Select labelId="select-product" value={selectedProduct ? selectedProduct.name : ""}
                                     label="Select a Product"
                             >
                                 {products.map((product, index) => (
