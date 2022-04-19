@@ -1,8 +1,9 @@
 import axios from "axios";
 import {Product} from "./product";
 
-export async function createProduct(product: string, model: string): Promise<Product> {
-  return (await axios.post<Product>(`/products/${model}`, product, {headers: {'Content-Type': 'text/plain'}})).data
+export async function createProduct(product: string, model: string | undefined): Promise<Product> {
+  const modelName = model || "NA";
+  return (await axios.post<Product>(`/products/${modelName}`, product, {headers: {'Content-Type': 'text/plain'}})).data
 }
 
 export async function getProducts(): Promise<Product[]> {

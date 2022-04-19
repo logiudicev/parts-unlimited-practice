@@ -55,7 +55,7 @@ internal class ProductControllerTests {
             quantity = 0
         )
 
-        mockMvc.post("/products") {
+        mockMvc.post("/products/1125") {
             contentType = MediaType.TEXT_PLAIN
             content = "first-product-name"
         }.andExpect {

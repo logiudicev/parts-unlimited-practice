@@ -68,7 +68,7 @@ describe("inventory", () => {
             render(<App/>);
             addProduct("shiny new product");
 
-            expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product");
+            expect(mockCreateProduct).toHaveBeenCalledWith("shiny new product", "");
             await waitFor(() => expect(screen.getAllByText("shiny new product")[0]).toBeInTheDocument());
 
             userEvent.selectOptions
@@ -111,11 +111,11 @@ describe("inventory", () => {
         })
         it("should display a dialog with a confirmation message upon fulfilling a complete order", async () => {
             await fulfillAnOrder("Screw Driver", 50, 40, 20)
-            expect(screen.getByText('You will receive "Screw Driver" X 20.'))
+            expect(screen.getByText('You will receive "Screw Driver - generic" X 20.'))
         })
         it("should display a dialog with confirmation message upon fulfilling a partial order", async () => {
             await fulfillAnOrder("Screw Driver", 50, 40, 60)
-            expect(screen.getByText('You will receive "Screw Driver" X 50. Note that your order was NOT completely fulfilled. Your delivery will be short 10 items.'))
+            expect(screen.getByText('You will receive "Screw Driver - generic" X 50. Note that your order was NOT completely fulfilled. Your delivery will be short 10 items.'))
         })
     })
 });

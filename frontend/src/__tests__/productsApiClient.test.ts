@@ -19,14 +19,16 @@ describe('productsApiClient', () => {
                 reqheaders: {
                     'Content-Type': 'text/plain'
                 }
-            }).post('/products', 'my-new-product')
-                .reply(200, {name: "my-new-product", quantity: 0});
+            }).post('/products/NA', 'my-new-product')
+                .reply(200, {name: "my-new-product", model: "NA", quantity: 0});
 
             const response = await createProduct("my-new-product", "");
 
             expect(scope.isDone()).toEqual(true);
             expect(response.name).toEqual("my-new-product");
             expect(response.quantity).toEqual(0);
+            expect(response.model).toEqual("NA");
+
         });
         it('should make a POST request to create a product with model number', async () => {
             const scope = nock('http://localhost', {

@@ -17,7 +17,7 @@ import {Product} from "./product";
 const App = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [productName, setProductName] = useState<string>("");
-    const [productModel, setProductModel] = useState<string>("");
+    const [productModel, setProductModel] = useState<string>();
     const [selectedProduct, setSelectedProduct] = useState<Product>();
     const [quantityInput, setQuantityInput] = useState<number>(0);
     const [orderAmountInput, setOrderAmountInput] = useState<number>(0);
@@ -75,7 +75,7 @@ const App = () => {
         if(selectedProduct) {
             const excessOrderAmount = productQuantityBeforeOrder <= orderAmountInput ? orderAmountInput - productQuantityBeforeOrder : 0;
             const actualOrderAmount = productQuantityBeforeOrder >= orderAmountInput ? orderAmountInput : productQuantityBeforeOrder;
-            const happyPath = `You will receive "${selectedProduct.name}" X ` + actualOrderAmount + '. ';
+            const happyPath = `You will receive "${selectedProduct.name} - ${selectedProduct.model}" X ` + actualOrderAmount + '. ';
             const unhappyPath = `Note that your order was NOT completely fulfilled. Your delivery will be short ${excessOrderAmount} items.`
             if(excessOrderAmount === 0){
                 return happyPath
@@ -161,6 +161,13 @@ const App = () => {
                     <h2>Quantity</h2>
                     {products.map((product, index) => (
                         <div key={index}>{product.quantity}</div>
+                    ))}
+                </Box>
+
+                <Box marginLeft="150px">
+                    <h2>Model</h2>
+                    {products.map((product, index) => (
+                        <div key={index}>{product.model}</div>
                     ))}
                 </Box>
             </Box>
