@@ -118,4 +118,9 @@ describe("inventory", () => {
             expect(screen.getByText('You will receive "Screw Driver - generic" X 50. Note that your order was NOT completely fulfilled. Your delivery will be short 10 items.'))
         })
     })
+    describe("when I search for a product by model number", () => {
+        it("should filter list", () => {
+
+        })
+    })
 });

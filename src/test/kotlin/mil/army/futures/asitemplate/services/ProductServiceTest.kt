@@ -35,7 +35,7 @@ internal class ProductServiceTest {
         every { productRepository.save(any()) } answers { firstArg() }
         val productName = "first-product"
         val productModel = "1125"
-        val productToSave = Product(name = productName, quantity = 0)
+        val productToSave = Product(name = productName, model = productModel, quantity = 0)
 
         productService.addProduct(productName, productModel)
 
